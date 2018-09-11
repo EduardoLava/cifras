@@ -3,15 +3,19 @@ package projeto.seguranca.software.criptografia;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class CifraTransposicao {
+import projeto.seguranca.software.interfaces.IAlgoritomoCriptografia;
+
+public class CifraTransposicao implements IAlgoritomoCriptografia {
 
 	private int linhas;
 	private int colunas;
 	
 	private char CORINGA = '=';
 
+	private final String chave;
 	
-	public CifraTransposicao() {
+	public CifraTransposicao(String chave) {
+		this.chave = chave.toLowerCase();
 	}
 
 	/**
@@ -35,7 +39,7 @@ public class CifraTransposicao {
 	 * @param frase
 	 * @return
 	 */
-	private char[][] criarMatriz(String frase, String chave) {
+	private char[][] criarMatriz(String frase) {
 		
 		frase = frase.replaceAll(" ", String.valueOf(CORINGA));
 		char[] charList = frase.toCharArray();
@@ -109,7 +113,7 @@ public class CifraTransposicao {
 	 * @param chave
 	 * @return
 	 */
-	private Map<String, char[]> gerarMap(char [][] matriz, String chave){
+	private Map<String, char[]> gerarMap(char [][] matriz){
 		
 		char[] chaveList = chave.toCharArray();
 		
@@ -138,11 +142,11 @@ public class CifraTransposicao {
 	 * @param chave
 	 * @return
 	 */
-	private String ordenaMatrizPorChave(char[][] matriz, String chave){
+	private String ordenaMatrizPorChave(char[][] matriz){
 		
 		String encriptado = "";
 		
-		Map<String, char[]> ordenado = gerarMap(matriz, chave);
+		Map<String, char[]> ordenado = gerarMap(matriz);
 		// ordena através de um tree map
 		for(String key: ordenado.keySet()){
 			
@@ -214,11 +218,12 @@ public class CifraTransposicao {
 	 * @param frase
 	 * @return
 	 */
-	public String criptografar(String frase, String chave){
-		chave = chave.toLowerCase();
-		char[][] matriz = criarMatriz(frase, chave);
+	@Override
+	public String encripta(String frase){
 		
-		return this.ordenaMatrizPorChave(matriz, chave);
+		char[][] matriz = criarMatriz(frase);
+		
+		return this.ordenaMatrizPorChave(matriz);
 		
 //        charList = matrizToArray(criarMatriz(charList, chave), chave);
         
@@ -234,8 +239,9 @@ public class CifraTransposicao {
 	 * @param chave
 	 * @return
 	 */
-	public String descriptografar(String fraseCriptografada, String chave){
-		chave = chave.toLowerCase();
+	@Override
+	public String decripta(String fraseCriptografada){
+		
 		String descriptografada = "";
 		// quantidade de linhas que a matriz possui
 		int colunasNecessarias = getNumeroLinhas(chave.length(), fraseCriptografada.toCharArray());

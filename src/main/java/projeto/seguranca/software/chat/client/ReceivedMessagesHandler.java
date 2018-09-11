@@ -4,16 +4,23 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 import projeto.seguranca.software.chat.Security;
-import projeto.seguranca.software.criptografia.CifraCezar;
+import projeto.seguranca.software.interfaces.IAlgoritomoCriptografia;
+import projeto.seguranca.software.interfaces.IListenerTexto;
 
 public class ReceivedMessagesHandler implements Runnable {
 
 	private InputStream server;
-	private CifraCezar cifraCezar;
+	private IAlgoritomoCriptografia cifra;
+	
+	private IListenerTexto listener;
 
-	public ReceivedMessagesHandler(InputStream server) {
+	public ReceivedMessagesHandler(
+		InputStream server, 
+		IListenerTexto listener
+	) {
 		this.server = server;
-		this.cifraCezar = new CifraCezar();
+		this.listener = listener;
+		this.cifra = Security.getInstance().getAlgoritmoCriptografia();
 	}
 
 	public void run() {
@@ -21,8 +28,9 @@ public class ReceivedMessagesHandler implements Runnable {
 		Scanner s = new Scanner(server);
 		while (s.hasNextLine()) {
 			String mensagemRecebida = s.nextLine();
-			mensagemRecebida = this.cifraCezar.decripta(mensagemRecebida, Security.getChave());
-			System.out.println(mensagemRecebida);
+			mensagemRecebida = this.cifra.decripta(mensagemRecebida);
+			listener.setTexto(mensagemRecebida);
+//			System.out.println(mensagemRecebida);
 		}
 		s.close();
 	}

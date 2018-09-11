@@ -60,13 +60,13 @@ public class App {
 
 		s.close();
 
-		CifraTransposicao cifraTransposicao = new CifraTransposicao();
-		String cripto = cifraTransposicao.criptografar(text, chave).toString();
+		CifraTransposicao cifraTransposicao = new CifraTransposicao(chave);
+		String cripto = cifraTransposicao.encripta(text).toString();
 		System.out.println(text+" Criptografado é: "+cripto);
 
 		System.out.println("\nDescriptografando....");
 		
-		String descripto = cifraTransposicao.descriptografar(cripto, chave);
+		String descripto = cifraTransposicao.decripta(cripto);
 		
 		System.out.println("Descriptografado: "+descripto);
 

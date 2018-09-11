@@ -1,17 +1,30 @@
 package projeto.seguranca.software.criptografia;
 
-public class CifraCezar {
+import projeto.seguranca.software.interfaces.IAlgoritomoCriptografia;
+
+public class CifraCezar implements IAlgoritomoCriptografia {
 
 	private Integer MAX_CHAR_ASCII = 255;
 	private Integer MIN_CHAR_ASCII = 1;
 	
-	public String encripta(String frase, int chave) throws IllegalArgumentException {
+	private char CORINGA = '=';
+	
+	private final Integer chave;
+	
+	public CifraCezar(Integer chave) {
+		this.chave = chave;
+	}
+	
+	@Override
+	public String encripta(String frase) throws IllegalArgumentException {
 
 //		frase = StringUtil.removerAcentos(frase);
 //		
 //		if(StringUtil.contemNumeros(frase)){
 //			throw new IllegalArgumentException("Não podem haver numeros na frase");
 //		}
+		
+		frase = frase.replaceAll(" ", String.valueOf(CORINGA));
 		
 		String textoCriptografado = "";
 		
@@ -22,21 +35,22 @@ public class CifraCezar {
 		return textoCriptografado;
 	}
 	
-
-	public String decripta(String frase, int chave){
+	@Override
+	public String decripta(String frase){
 		
 		String textoDescriptografado = "";
 		
-		chave = chave *-1;
+		Integer chave = this.chave *-1;
 		
 		for(int i=0; i< frase.length(); i++){
 			textoDescriptografado+= getChar(frase.charAt(i), chave);
 		}
 		
+		textoDescriptografado = textoDescriptografado.replaceAll(String.valueOf(CORINGA), " ");
 		return textoDescriptografado; 
 	}
 	
-	private char getChar(char caracter, int chave){
+	private char getChar(char caracter, Integer chave){
 		
 		if(caracter == ' '){
 			return caracter;

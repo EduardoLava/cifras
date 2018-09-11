@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 import projeto.seguranca.software.chat.Security;
-import projeto.seguranca.software.criptografia.CifraCezar;
+import projeto.seguranca.software.interfaces.IAlgoritomoCriptografia;
+import projeto.seguranca.software.interfaces.IListenerTexto;
 
 public class Client {
 
@@ -15,44 +15,77 @@ public class Client {
 	private int port;
 	private String nickname;
 	
-	private CifraCezar cifraCezar;
+	private IAlgoritomoCriptografia cifra;
 
+	private Socket client;
+	private PrintStream output;
+
+	private IListenerTexto listener;
+	
 	public static void main(String[] args) throws UnknownHostException, IOException {
-		new Client("127.0.0.1", 12345).run();
+		new Client("127.0.0.1", 12345,"", null).run();
 	}
 
-	public Client(String host, int port) {
+	public Client(
+		String host, 
+		int port, 
+		String nickName,
+		IListenerTexto listener
+	) {
 		this.host = host;
 		this.port = port;
-		this.cifraCezar = new CifraCezar();
+		this.nickname = nickName;
+		this.cifra = Security.getInstance().getAlgoritmoCriptografia();
+		this.listener = listener;
 	}
 
 	public void run() throws UnknownHostException, IOException {
 		// connect client to server
-		Socket client = new Socket(host, port);
+		this.client = new Socket(host, port);
 		System.out.println("Client successfully connected to server!");
 
 		// create a new thread for server messages handling
-		new Thread(new ReceivedMessagesHandler(client.getInputStream())).start();
+		new Thread(new ReceivedMessagesHandler(client.getInputStream() , listener)).start();
 
 		// ask for a nickname
-		Scanner sc = new Scanner(System.in);
-		System.out.print("Enter a nickname: ");
-		nickname = sc.nextLine();
+//		Scanner sc = new Scanner(System.in);
+//		System.out.print("Enter a nickname: ");
+//		nickname = sc.nextLine();
 
 		// read messages from keyboard and send to server
-		System.out.println("Send messages: ");
-		PrintStream output = new PrintStream(client.getOutputStream());
-		while (sc.hasNextLine()) {
-			final String mensagem = nickname + ": " + sc.nextLine();
-			output.println(cifraCezar.encripta(mensagem, Security.getChave()));
-//			this.cifraCezar.encripta(nickname + ": " + sc.nextLine(), Security.getChave());
-//			output.println(nickname + ": " + sc.nextLine());
-		}
+//		System.out.println("Send messages: ");
+		output = new PrintStream(client.getOutputStream());
+//		while (sc.hasNextLine()) {
+//			final String mensagem = nickname + ": " + sc.nextLine();
+//			output.println(cifra.encripta(mensagem, Security.getChave()));
+////			this.cifraCezar.encripta(nickname + ": " + sc.nextLine(), Security.getChave());
+////			output.println(nickname + ": " + sc.nextLine());
+//		}
 		
+//		output.close();
+//		sc.close();
+//		client.close();
+	}
+	
+	public void close() throws IOException{
 		output.close();
-		sc.close();
 		client.close();
 	}
+	
+	/**
+	 * Envia mensagem criptografada
+	 * 
+	 * @param mensagem
+	 */
+	public void enviarMensagem(String mensagem){
+		
+		// criptografa
+		String mensagemCriptografada= cifra.encripta(nickname + ": " +mensagem);
+		
+		// envia
+		output.println(mensagemCriptografada);
+		
+	}
+	
 }
 
