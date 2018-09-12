@@ -1,12 +1,13 @@
 package projeto.seguranca.software.interfaces;
 
+import java.io.Serializable;
+
 /**
  * 
  * @author Eduardo
  *
- * @param <T> tipo da chave
  */
-public interface IAlgoritomoCriptografia {
+public interface IAlgoritomoCriptografia extends Serializable {
 
 	String encripta(String frase);
 	

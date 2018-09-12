@@ -29,7 +29,7 @@ public class ChatWindow extends AbstractWindow implements IListenerTexto {
 	private final Client client;
 	
 	
-	public ChatWindow(Pessoa pessoa) throws UnknownHostException, IOException {
+	public ChatWindow(Pessoa pessoa) throws UnknownHostException, IOException, ClassNotFoundException {
 		super("Chat - "+pessoa.getNome());
 		this.pessoa = pessoa;
 		

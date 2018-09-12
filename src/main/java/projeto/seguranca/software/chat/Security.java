@@ -1,7 +1,6 @@
 package projeto.seguranca.software.chat;
 
 import java.util.Random;
-import java.util.UUID;
 
 import projeto.seguranca.software.interfaces.IAlgoritomoCriptografia;
 
@@ -14,7 +13,7 @@ public class Security {
 	
 	private IAlgoritomoCriptografia algoritmoCriptografia;
 	
-	public static synchronized Security getInstance(){
+	public static Security getInstance(){
 		
 		if( security == null){
 			security = new Security();
@@ -40,16 +39,6 @@ public class Security {
 		return random.nextInt(MAX);
 	}
 	
-	/**
-	 * 
-	 * Gera chave randomica somente com strings
-	 * 
-	 * @return
-	 */
-	public String getChaveText(){
-		return UUID.randomUUID().toString();
-	}
-
 	public IAlgoritomoCriptografia getAlgoritmoCriptografia() {
 		return security.algoritmoCriptografia;
 	}

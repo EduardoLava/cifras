@@ -1,6 +1,7 @@
 package projeto.seguranca.software.chat.client;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -15,14 +16,12 @@ public class Client {
 	private int port;
 	private String nickname;
 	
-	private IAlgoritomoCriptografia cifra;
-
 	private Socket client;
 	private PrintStream output;
 
 	private IListenerTexto listener;
 	
-	public static void main(String[] args) throws UnknownHostException, IOException {
+	public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException {
 		new Client("127.0.0.1", 12345,"", null).run();
 	}
 
@@ -35,18 +34,19 @@ public class Client {
 		this.host = host;
 		this.port = port;
 		this.nickname = nickName;
-		this.cifra = Security.getInstance().getAlgoritmoCriptografia();
 		this.listener = listener;
 	}
 
-	public void run() throws UnknownHostException, IOException {
+	public void run() throws UnknownHostException, IOException, ClassNotFoundException {
 		// connect client to server
 		this.client = new Socket(host, port);
 		System.out.println("Client successfully connected to server!");
-
+		
+		recebeToken(client);
+		
 		// create a new thread for server messages handling
 		new Thread(new ReceivedMessagesHandler(client.getInputStream() , listener)).start();
-
+		
 		// ask for a nickname
 //		Scanner sc = new Scanner(System.in);
 //		System.out.print("Enter a nickname: ");
@@ -72,6 +72,16 @@ public class Client {
 		client.close();
 	}
 	
+	private void recebeToken(Socket socket) throws ClassNotFoundException, IOException{
+		
+		ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+        Object object = objectInputStream.readObject();
+		
+		Security.getInstance().setAlgoritmoCriptografia((IAlgoritomoCriptografia) object);
+		
+//		objectInputStream.close();
+	}
+	
 	/**
 	 * Envia mensagem criptografada
 	 * 
@@ -80,7 +90,7 @@ public class Client {
 	public void enviarMensagem(String mensagem){
 		
 		// criptografa
-		String mensagemCriptografada= cifra.encripta(nickname + ": " +mensagem);
+		String mensagemCriptografada= Security.getInstance().getAlgoritmoCriptografia().encripta(nickname + ": " +mensagem);
 		
 		// envia
 		output.println(mensagemCriptografada);
